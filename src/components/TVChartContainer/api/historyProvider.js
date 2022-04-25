@@ -35,62 +35,22 @@ export default {
 	history: history,
 
     getBars: async function(symbolInfo, resolution, periodParams) {
-		const authToken = "eyJhbGciOiJSUzI1NiIsImtpZCI6ImM2NzNkM2M5NDdhZWIxOGI2NGU1OGUzZWRlMzI1NWZiZjU3NTI4NWIiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vb3B0ZXN0ZXItODVmMDQiLCJhdWQiOiJvcHRlc3Rlci04NWYwNCIsImF1dGhfdGltZSI6MTY1MDgzODk1NiwidXNlcl9pZCI6IlZnb3I3ODVhbUJZUlpEdjR2V2t2Z21wUGZhbzIiLCJzdWIiOiJWZ29yNzg1YW1CWVJaRHY0dldrdmdtcFBmYW8yIiwiaWF0IjoxNjUwODM4OTU2LCJleHAiOjE2NTA4NDI1NTYsImVtYWlsIjoiYWJjQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwiZmlyZWJhc2UiOnsiaWRlbnRpdGllcyI6eyJlbWFpbCI6WyJhYmNAZ21haWwuY29tIl19LCJzaWduX2luX3Byb3ZpZGVyIjoiY3VzdG9tIn19.H3mXFPQCebl6KunIybKHhvqGM-UgijMOgAue9s3iKjNmQRR9kntvv5OQdeCwWVNaKe82Vu4OjPxIyjk5yuv7JsTWXWbvCc5H74bAjF9ccy_xMhDkxUM87PKXQh7lTNlfK7GwLGfbDIbSVFcW3ASTpFqG9E_50mPQw7qX1sJv8gtoYOEJLIB6nRu9yRAFvkXGWudT_QB7-ksTmwAXNpm9P-_yqCy3YX0Hmst1Vk_H65LLcpRJcxBdnR4mqWyKB3fIFjXYqe2dLSoivuwqr8cEZvy6syztdLGjOzkj3dqUd6KARIziY66chPOtUjyploch_L8gzBjQpVjiRTCz8ep_qw"
+		const authToken = "eyJhbGciOiJSUzI1NiIsImtpZCI6ImM2NzNkM2M5NDdhZWIxOGI2NGU1OGUzZWRlMzI1NWZiZjU3NTI4NWIiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vb3B0ZXN0ZXItODVmMDQiLCJhdWQiOiJvcHRlc3Rlci04NWYwNCIsImF1dGhfdGltZSI6MTY1MDkyNjUyOSwidXNlcl9pZCI6IlZnb3I3ODVhbUJZUlpEdjR2V2t2Z21wUGZhbzIiLCJzdWIiOiJWZ29yNzg1YW1CWVJaRHY0dldrdmdtcFBmYW8yIiwiaWF0IjoxNjUwOTI2NTI5LCJleHAiOjE2NTA5MzAxMjksImVtYWlsIjoiYWJjQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwiZmlyZWJhc2UiOnsiaWRlbnRpdGllcyI6eyJlbWFpbCI6WyJhYmNAZ21haWwuY29tIl19LCJzaWduX2luX3Byb3ZpZGVyIjoiY3VzdG9tIn19.IrdFAceadqSkHHSR9b1LGAWaBsxErI5jId6YAbKFcz0Yy0BZPcTsAKZ6Fy_7GRuEDRRn0GFQm1OLtE16kSmpde0dVn1rXBMDqakogPnM8v8hSJhE4NBixWa8vLTYVnWoaXHNIEDhOKzEvv8hGl8kW1wc8XAZyJE18JHxAcuF06vmziVVF4gOx77cm8K9gKvBv6mle8F3gy_v9cXL9F8EZH93pcNoVXC-Z8krYfH1dHVYSTKXIMjkx0Gm1kyp0Dsdyykzf66GZxzH5NYllcYyyNxdCIjWAb2Dyn3odvgSi6BTQqAl-1B2efwJztYaJq_ZShditeEAvXVUr08ZC-Spqw"
 		const payload = get_payload(symbolInfo, resolution, periodParams)
 		try {
 			var res = await axios.post(
-				"http://localhost:8000/get_bars",
+				"https://api.opzen.io/api/v1/titan/get_bars",
 				payload,
 				{
 					headers: {Authorization: `Bearer ${authToken}`,}
 				}
 			)
 			const new_bars = res.data
-
-			const from = periodParams.from 
-			const to = periodParams.to
-			const first = periodParams.firstDataRequest
-			const limit = periodParams.countBack
-
-			var split_symbol = symbolInfo.name.split(/[:/]/)
-			const url = resolution === 'D' ? '/data/histoday' : resolution >= 60 ? '/data/histohour' : '/data/histominute'
-			const qs = {
-				e: split_symbol[0],
-				fsym: split_symbol[1],
-				tsym: split_symbol[2],
-				toTs:  periodParams.to ? periodParams.to : '',
-				limit: periodParams.countBack ? periodParams.countBack : 2000,
-			}
-
-			const data = await axios.get(`${api_root}${url}`, { params: qs });
-			if (data.Response && data.Response === 'Error') {
-				console.log('CryptoCompare API error:', data.Message);
-				return [];
-			}
-			let resp_json = data.data.Data;
-			if (resp_json.length) {
-				var bars = resp_json.map(el => {
-					return {
-						time: el.time * 1000,
-						low: el.low,
-						high: el.high,
-						open: el.open,
-						close: el.close,
-						volume: el.volumefrom
-					};
-				});
-				if (first) {
-					var lastBar = bars[bars.length - 1];
-					history[symbolInfo.name] = { lastBar: lastBar };
-				}
-
-				return new_bars;
-			} else {
-				return [];
-			}
+			return new_bars;
 		}
 		catch (error) {
 			console.log(error)
+			return []
 		}
 	}
 }
