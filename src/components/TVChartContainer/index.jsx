@@ -52,6 +52,7 @@ export class TVChartContainer extends React.PureComponent {
 			fullscreen: this.props.fullscreen,
 			autosize: this.props.autosize,
 			studies_overrides: this.props.studiesOverrides,
+			debug: true
 		};
 
 		const tvWidget = new widget(widgetOptions);
